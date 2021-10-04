@@ -23,8 +23,14 @@ print('count of nan values')
 print(districtDataUrl.isna().sum())
 print(districtDataUrl.isnull().sum(axis = 0))
 
-importantColumns = districtDataUrl[['Time','Bezirk','AnzEinwohner','AnzahlFaelle','AnzahlFaelleSum','AnzahlFaelle7Tage']]
-
+importantColumns = districtDataUrl[['Time','Bezirk','AnzahlFaelle']]
+#check if the rows contain value zero
+print(importantColumns == 0)
+#non zero value rows
+importantColumns = importantColumns[~(importantColumns == 0).any(axis=1)]
+importantColumns.info(verbose=False)
+importantColumns.info()
+importantColumns.dtypes
 #convert to datetime format of time column for grouping by week,month,year dayfirst=true for correct conversion format(yyyy-mm-dd)
 importantColumns['Time']=pd.to_datetime(districtDataUrl['Time'],dayfirst=True)
 
