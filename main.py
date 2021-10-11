@@ -11,6 +11,9 @@ from flask import request, jsonify
 import requests
 import json
 
+#setttingcopywithwarning remove
+pd.options.mode.chained_assignment = None  # default='warn'
+
 # =============================================================================
 #district data url
 districtDataUrl = pd.read_csv('https://covid19-dashboard.ages.at/data/CovidFaelle_Timeline_GKZ.csv',sep=";")
@@ -121,11 +124,8 @@ app.config["DEBUG"] = True
 
 @app.route('/', methods=['GET'])
 def home():
-    return 
-    "<p>Welcome to the home page of flask API try following routes to see covid related information</p>"
-    "<p>1./api/positivecasesbydistrict/</p>"
-    "<p>2./api/Vaccination/</p>"
-    "<p>3./api/R_eff_Austria/</p>"
+    sample="Welcome to the home page of flask API try following routes to see covid related information <br/>1./api/positivecasesbydistrict/<br/>2./api/Vaccination/</br>3./api/R_eff_Austria/</p>"
+    return sample
 
 # A route to return all the json data.
 @app.route('/api/positivecasesbydistrict/', methods=['GET'])
