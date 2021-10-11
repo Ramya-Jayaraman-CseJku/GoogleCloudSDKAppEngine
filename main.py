@@ -51,9 +51,7 @@ importantColumnsREFF['Datum']=pd.to_datetime(rValueUrl['Datum'])
 #Vaccination data url
 vaccinationDataUrl = pd.read_csv('https://info.gesundheitsministerium.gv.at/data/timeline-eimpfpass.csv',sep=';')
 pd.options.mode.chained_assignment = None  # default='warn'
-vaccinationDataUrl.info(verbose=False)
-vaccinationDataUrl.info()
-vaccinationDataUrl.dtypes
+
 #delete the rows where column value is NaN
 #vaccinationDataUrl.dropna(axis=0)
 importantColumnsVacc=vaccinationDataUrl[["Datum","Name","Bevölkerung","Vollimmunisierte"]]
@@ -366,4 +364,4 @@ def api_warningLevelRegion():
   return responseWarnLevel
                 
 
-app.run(port=8080)
+app.run(port=8081)
