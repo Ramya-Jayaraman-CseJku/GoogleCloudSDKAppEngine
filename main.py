@@ -212,15 +212,10 @@ def api_REffectiveValue_Filter():
     else:
         return 'Error:No interval provided. Please choose a interval .'
 
-    if(dataintervaltofilter == 'Monthly'):
-        REffDataByMonth = importantColumnsREFF.assign(Interval=importantColumnsREFF['Datum'].dt.strftime(
-            '%b %Y'), Year=importantColumnsREFF['Datum'].dt.strftime('%Y').sort_index()).groupby(['Interval', 'Year'], sort=False)['R_eff'].sum()
-        convertedJsonREff = REffDataByMonth.to_json(orient="table")
-
-    elif(dataintervaltofilter == 'Weekly'):
-        REffDataByWeek = importantColumnsREFF.assign(Interval='week '+importantColumnsREFF['Datum'].dt.strftime(
-            '%W %Y'), Year=importantColumnsREFF['Datum'].dt.strftime('%Y').sort_index()).groupby(['Interval', 'Year'], sort=False)['R_eff'].sum()
-        convertedJsonREff = REffDataByWeek.to_json(orient="table")
+    if(dataintervaltofilter == 'Daily'):
+        REffDataEveryday = importantColumnsREFF.assign(Interval=importantColumnsREFF['Datum'].dt.strftime(
+            '%d %b %Y'), Year=importantColumnsREFF['Datum'].dt.strftime('%Y').sort_index())
+        convertedJsonREff = REffDataEveryday.to_json(orient="table")
 
     else:
         return 'Error:Interval type provided is mismatched  . Please choose one of the data interval Weekly,Monthly.'
