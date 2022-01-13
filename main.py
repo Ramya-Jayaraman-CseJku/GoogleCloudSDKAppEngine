@@ -158,18 +158,25 @@ def api_DistrictPositiveCases_Filter():
         dataintervaltofilter = interval
     else:
         return 'Error:No interval provided. Please choose a interval .'
+        
+    if(dataintervaltofilter == 'Daily'):
 
-    if(dataintervaltofilter == 'Monthly'):
-
-        districtDataByMonth = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime('%b %Y'), Year=filteredDistrict['Time'].dt.strftime(
+        districtDataByDay = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime('%d %b %Y'), Year=filteredDistrict['Time'].dt.strftime(
             '%Y').sort_index()).groupby(['DistrictName', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
-        convertedJson = districtDataByMonth.to_json(orient="table")
+        convertedJson = districtDataByDay.to_json(orient="table")
 
     elif(dataintervaltofilter == 'Weekly'):
         districtDataByWeek = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval='week '+filteredDistrict['Time'].dt.strftime(
             '%W %Y'), Year=filteredDistrict['Time'].dt.strftime('%Y').sort_index()).groupby(['DistrictName', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
         convertedJson = districtDataByWeek.to_json(orient="table")
 
+    elif(dataintervaltofilter == 'Monthly'):
+
+        districtDataByMonth = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime('%b %Y'), Year=filteredDistrict['Time'].dt.strftime(
+            '%Y').sort_index()).groupby(['DistrictName', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
+        convertedJson = districtDataByMonth.to_json(orient="table")
+
+    
     elif(dataintervaltofilter == 'Yearly'):
 
         districtDataByYear = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime(
@@ -177,7 +184,7 @@ def api_DistrictPositiveCases_Filter():
         convertedJson = districtDataByYear.to_json(orient="table")
 
     else:
-        return 'Error: Interval type provided is mismatched  . Please choose one of the data interval Weekly,Monthly or Yearly.'
+        return 'Error: Interval type provided is mismatched  . Please choose one of the data interval Daily,Weekly,Monthly or Yearly.'
 
     #convertedJson = districtDataByMonth.to_json(orient="table")
     # de-serialize into python obj
