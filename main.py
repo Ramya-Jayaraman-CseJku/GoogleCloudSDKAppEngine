@@ -151,7 +151,7 @@ app.config["DEBUG"] = True
 
 @app.route('/', methods=['GET'])
 def home():
-    sample = "Welcome to the home page of flask API try following routes to see covid related information <br/>1./api/positivecasesbydistrict/<br/>2./api/Vaccination/</br>3./api/R_eff_Austria/</p>"
+    sample = "Welcome to the home page of flask API try following routes to see covid related information <br/>1./api/positivecasesbydistrict/<br/>2./api/Vaccination/</br>3./api/VaccinationDistricts/<br/>4./api/R_eff_Austria/</p>"
     return sample
 
 # A route to return all the json data.
