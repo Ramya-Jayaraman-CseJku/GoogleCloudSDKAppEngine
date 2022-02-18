@@ -96,7 +96,29 @@ importantColumnsVacc['Datum'] = importantColumnsVacc['Datum'].dt.tz_convert(
     'CET')
 # print(importantColumnsVacc['Datum'])
 # print(importantColumnsVacc.describe())
+# =============================================================================
+# Vaccination Districts Url
+vaccinationDistrictsDataUrl = pd.read_csv(
+    'https://info.gesundheitsministerium.gv.at/data/COVID19_vaccination_municipalities.csv', sep=';')
 
+importantColumnsVaccDist = vaccinationDistrictsDataUrl[[
+    "date", "municipality_name", "municipality_population", "dose_1", "dose_2", "dose_3"]]
+importantColumnsVaccDist.dropna(axis=0)
+importantColumnsVaccDist.info(verbose=False)
+importantColumnsVaccDist.info()
+importantColumnsVaccDist.dtypes
+
+importantColumnsVaccDist = importantColumnsVaccDist[~(
+    importantColumnsVaccDist == 0).any(axis=1)]
+
+importantColumnsVaccDist['date'] = pd.to_datetime(
+    importantColumnsVaccDist['date'], utc=True)
+importantColumnsVaccDist['date'] = importantColumnsVaccDist['date'].dt.tz_convert(
+    'CET')
+importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
+    '\d+.', '')
+importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
+    '\s{2,}', ' ')
 # =============================================================================
 # read json file for warn level
 response = requests.get(
@@ -148,8 +170,8 @@ def api_DistrictPositiveCases_Filter():
 
     if 'districtname' in query_parameters:
         districtnametofilter = districtname
-        filteredDistrict = importantColumns[importantColumns['Bezirk'].apply(
-            lambda val:districtnametofilter in val)]
+        filteredDistrict = importantColumns[importantColumns['Bezirk']
+                                            == districtnametofilter]
 
     else:
         return 'Error:No district name provided. Please choose a district name.'
@@ -158,7 +180,7 @@ def api_DistrictPositiveCases_Filter():
         dataintervaltofilter = interval
     else:
         return 'Error:No interval provided. Please choose a interval .'
-        
+
     if(dataintervaltofilter == 'Daily'):
 
         districtDataByDay = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime('%d %b %Y'), Year=filteredDistrict['Time'].dt.strftime(
@@ -176,7 +198,6 @@ def api_DistrictPositiveCases_Filter():
             '%Y').sort_index()).groupby(['DistrictName', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
         convertedJson = districtDataByMonth.to_json(orient="table")
 
-    
     elif(dataintervaltofilter == 'Yearly'):
 
         districtDataByYear = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime(
@@ -300,6 +321,49 @@ def api_Vaccination_Filter():
 # =============================================================================
 
 
+@app.route('/VaccinationDistricts', methods=['GET'])
+def VaccinationDistricts():
+    return "<p>Vaccination data: Vaccination data for districts for particular date</p>"
+
+# A route to return all the json data.
+
+
+@app.route('/api/VaccinationDistricts/', methods=['GET'])
+def api_VaccinationDistricts_Filter():
+    districtname = ''
+
+    query_parameters = request.args
+
+    districtname = query_parameters.get('districtname')
+
+    if 'districtname' in query_parameters:
+        districtnametofilter = districtname
+        filteredDistrictVacc = importantColumnsVaccDist[importantColumnsVaccDist['municipality_name']
+                                                        == districtnametofilter]
+
+    else:
+        return 'Error:No districtname provided. Please choose a districtname.'
+
+    VaccData = filteredDistrictVacc.assign(
+        Interval=filteredDistrictVacc['date'].dt.strftime('%d %b %Y'), Dose=filteredDistrictVacc['dose_1'], Type="Dose_1")
+    VaccDataDose_2 = filteredDistrictVacc.assign(
+        Interval=filteredDistrictVacc['date'].dt.strftime('%d %b %Y'),
+        Dose=filteredDistrictVacc['dose_2'], Type="Dose_2")
+    VaccDataDose_3 = filteredDistrictVacc.assign(
+        Interval=filteredDistrictVacc['date'].dt.strftime('%d %b %Y'),
+        Dose=filteredDistrictVacc['dose_3'], Type="Dose_3")
+    data = [VaccData, VaccDataDose_2, VaccDataDose_3]
+    ddf = pd.concat(data)
+    convertedJsonVaccDist = ddf.to_json(
+        orient="table")
+
+    parsedJsonVaccDist = json.loads(convertedJsonVaccDist)
+    json.dumps(parsedJsonVaccDist)
+    return jsonify(parsedJsonVaccDist)
+
+# =============================================================================
+
+
 @app.route('/api/warnLevelRegion/', methods=['GET'])
 def api_warningLevelRegion():
 
@@ -332,5 +396,6 @@ def api_warningLevelRegion():
     responseWarnLevel = jsonify(citiesWithCoordinatesByDate)
     return responseWarnLevel
 
+
 if __name__ == '__main__':
-     app.run(port=8080, debug=True)
+    app.run(port=8080, debug=True)
