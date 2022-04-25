@@ -115,10 +115,60 @@ importantColumnsVaccDist['date'] = pd.to_datetime(
     importantColumnsVaccDist['date'], utc=True)
 importantColumnsVaccDist['date'] = importantColumnsVaccDist['date'].dt.tz_convert(
     'CET')
-importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
-    '\d+.', '')
-importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
-    '\s{2,}', ' ')
+    
+importantColumnsVaccDist['municipality_id'] = importantColumnsVaccDist[(
+    importantColumnsVaccDist['municipality_id']).between(90101, 92301)]
+importantColumnsVaccDist.loc[
+    importantColumnsVaccDist.municipality_id == 90101, 'municipality_name'] = 'Wien Innere Stadt'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90201), 'municipality_name'] = 'Wien Leopoldstadt'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90301), 'municipality_name'] = 'Wien Landstraße'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90401), 'municipality_name'] = 'Wien Wieden'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90501), 'municipality_name'] = 'Wien Margareten'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90601), 'municipality_name'] = 'Wien Mariahilf'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90701), 'municipality_name'] = 'Wien Neubau'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90801), 'municipality_name'] = 'Wien Josefstadt'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 90901), 'municipality_name'] = 'Wien Alsergrund'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91001), 'municipality_name'] = 'Wien Favoriten'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91101), 'municipality_name'] = 'Wien Simmering'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91201), 'municipality_name'] = 'Wien Meidling'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91301), 'municipality_name'] = 'Wien Hietzing'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91401), 'municipality_name'] = 'Wien Penzing'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91501), 'municipality_name'] = 'Wien Rudolfsheim-Funfhaus'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91601), 'municipality_name'] = 'Wien Ottakring'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91701), 'municipality_name'] = 'Wien Hernals'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91801), 'municipality_name'] = 'Wien Währing'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 91901), 'municipality_name'] = 'Wien Döbling'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 92001), 'municipality_name'] = 'Wien Brigittenau'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 92101), 'municipality_name'] = 'Wien Floridsdorf'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 92201), 'municipality_name'] = 'Wien Donaustadt'
+importantColumnsVaccDist.loc[(
+    importantColumnsVaccDist.municipality_id == 92301), 'municipality_name'] = 'Wien Liesing'
+    
+# importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
+    # '\d+.', '')
+# importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
+    # '\s{2,}', ' ')
 # =============================================================================
 # read json file for warn level
 response = requests.get(
@@ -151,7 +201,7 @@ app.config["DEBUG"] = True
 
 @app.route('/', methods=['GET'])
 def home():
-    sample = "Welcome to the home page of flask API try following routes to see covid related information <br/>1./api/positivecasesbydistrict/<br/>2./api/Vaccination/</br>3./api/VaccinationDistricts/<br/>4./api/R_eff_Austria/</p>"
+    sample = "Welcome to the home page of flask API try following routes to see covid related information <br/>1./api/positivecasesbydistrict/<br/>2./api/VaccinationDistricts/<br/>3./api/R_eff_Austria/</p>"
     return sample
 
 # A route to return all the json data.
@@ -254,72 +304,6 @@ def api_REffectiveValue_Filter():
 
 
 # =============================================================================
-
-@app.route('/Vaccination', methods=['GET'])
-def Vaccination():
-    return "<p>Vaccination data: Vaccination data for countries grouped by week month and year</p>"
-
-# A route to return all the json data.
-
-
-@app.route('/api/Vaccination/', methods=['GET'])
-def api_Vaccination_Filter():
-    statename = ''
-
-    interval = ''
-    # get query parameters
-    query_parameters = request.args
-    # assign param to filter data
-
-    statename = query_parameters.get('statename')
-
-    interval = query_parameters.get('interval')
-
-    if 'statename' in query_parameters:
-        countrynametofilter = statename
-        filteredCountry = importantColumnsVacc[importantColumnsVacc['Name'].apply(
-            lambda val:countrynametofilter in val)]
-
-    else:
-        return 'Error:No country name provided. Please choose a country name.'
-
-    if 'interval' in query_parameters:
-        dataintervaltofilter = interval
-    else:
-        return 'Error:No interval provided. Please choose a interval .'
-
-    if(dataintervaltofilter == 'Monthly'):
-        VaccDataByMonth = filteredCountry.assign(Country_Region=filteredCountry['Name'], Interval=filteredCountry['Datum'].dt.strftime(
-            '%b %Y'), Year=filteredCountry['Datum'].dt.strftime('%Y').sort_index()).groupby(['Country_Region', 'Bevölkerung', 'Interval', 'Year'], sort=False)['Vollimmunisierte'].last()
-        # ['GemeldeteImpfungenLaender']/VaccDataByMonth['Bevölkerung'])*100
-        # VaccDataByMonth.assign(percentagePopulationVaccinated)
-
-        convertedJsonVacc = VaccDataByMonth.to_json(
-            orient="table")
-
-    elif(dataintervaltofilter == 'Weekly'):
-        VaccDataByWeek = filteredCountry.assign(Country_Region=filteredCountry['Name'], Interval='week '+filteredCountry['Datum'].dt.strftime(
-            '%W %Y'), Year=filteredCountry['Datum'].dt.strftime('%Y').sort_index()).groupby(['Country_Region', 'Bevölkerung', 'Interval', 'Year'], sort=False)['Vollimmunisierte'].last()
-
-        convertedJsonVacc = VaccDataByWeek.to_json(
-            orient="table")
-
-    elif(dataintervaltofilter == 'Yearly'):
-        VaccDataByYear = filteredCountry.assign(Country_Region=filteredCountry['Name'], Interval=filteredCountry['Datum'].dt.strftime(
-            '%Y').sort_index()).groupby(['Country_Region', 'Bevölkerung', 'Interval'])['Vollimmunisierte'].last()
-
-        convertedJsonVacc = VaccDataByYear.to_json(
-            orient="table")
-
-    else:
-        return 'Error:Interval type provided is mismatched  . Please choose one of the data interval Weekly,Monthly,Yearly.'
-
-    parsedJsonVacc = json.loads(convertedJsonVacc)
-    json.dumps(parsedJsonVacc)
-    return jsonify(parsedJsonVacc)
-
-# =============================================================================
-
 
 @app.route('/VaccinationDistricts', methods=['GET'])
 def VaccinationDistricts():
