@@ -116,8 +116,8 @@ importantColumnsVaccDist['date'] = pd.to_datetime(
 importantColumnsVaccDist['date'] = importantColumnsVaccDist['date'].dt.tz_convert(
     'CET')
     
-importantColumnsVaccDist['municipality_id'] = importantColumnsVaccDist[(
-    importantColumnsVaccDist['municipality_id']).between(90101, 92301)]
+# importantColumnsVaccDist['municipality_id'] = importantColumnsVaccDist[(
+    # importantColumnsVaccDist['municipality_id']).between(90101, 92301)]
 importantColumnsVaccDist.loc[
     importantColumnsVaccDist.municipality_id == 90101, 'municipality_name'] = 'Wien Innere Stadt'
 importantColumnsVaccDist.loc[(
@@ -147,7 +147,7 @@ importantColumnsVaccDist.loc[(
 importantColumnsVaccDist.loc[(
     importantColumnsVaccDist.municipality_id == 91401), 'municipality_name'] = 'Wien Penzing'
 importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91501), 'municipality_name'] = 'Wien Rudolfsheim-Funfhaus'
+    importantColumnsVaccDist.municipality_id == 91501), 'municipality_name'] = 'Wien Rudolfsheim-Fünfhaus'
 importantColumnsVaccDist.loc[(
     importantColumnsVaccDist.municipality_id == 91601), 'municipality_name'] = 'Wien Ottakring'
 importantColumnsVaccDist.loc[(
@@ -182,7 +182,6 @@ df = pd.read_csv(r'AustrianCitiesWithCoordinates.csv')
 
 # =============================================================================
 
-
 def getMarkerColor(i):
     switcher = {
         '1': 'green',
@@ -191,7 +190,6 @@ def getMarkerColor(i):
         '4': 'red',
     }
     return switcher.get(i, "Invalid number")
-
 
 # =============================================================================
 # API
@@ -267,13 +265,11 @@ def api_DistrictPositiveCases_Filter():
 
 # =============================================================================
 
-
 @app.route('/REff', methods=['GET'])
 def REffhome():
     return "<p>R_Effective data: R effective value for austria grouped by week month and year</p>"
 
 # A route to return all the json data.
-
 
 @app.route('/api/R_eff_Austria/', methods=['GET'])
 def api_REffectiveValue_Filter():
@@ -311,7 +307,6 @@ def VaccinationDistricts():
 
 # A route to return all the json data.
 
-
 @app.route('/api/VaccinationDistricts/', methods=['GET'])
 def api_VaccinationDistricts_Filter():
     districtname = ''
@@ -346,7 +341,6 @@ def api_VaccinationDistricts_Filter():
     return jsonify(parsedJsonVaccDist)
 
 # =============================================================================
-
 
 @app.route('/api/warnLevelRegion/', methods=['GET'])
 def api_warningLevelRegion():
