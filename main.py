@@ -52,123 +52,70 @@ importantColumnsREFF = rValueUrl[['Datum', 'R_eff']]
 importantColumnsREFF['Datum'] = pd.to_datetime(rValueUrl['Datum'])
 
 # =============================================================================
-# Vaccination data url
-vaccinationDataUrl = pd.read_csv(
-    'https://info.gesundheitsministerium.gv.at/data/timeline-eimpfpass.csv', sep=';')
-pd.options.mode.chained_assignment = None  # default='warn'
-
-# delete the rows where column value is NaN
-# vaccinationDataUrl.dropna(axis=0)
-importantColumnsVacc = vaccinationDataUrl[[
-    "Datum", "Name", "Bevölkerung", "Vollimmunisierte"]]
-print('count of nan and null values')
-print('nan')
-print(importantColumnsVacc.isna().sum())
-print('null')
-print(importantColumnsVacc.isnull().sum(axis=0))
-importantColumnsVacc.dropna(axis=0)
-importantColumnsVacc.info(verbose=False)
-importantColumnsVacc.info()
-importantColumnsVacc.dtypes
-
-# check if the rows contain value zero
-print('place name no assignment')
-print((importantColumnsVacc == 'KeineZuordnung').sum())
-importantColumnsVacc = importantColumnsVacc[~(
-    importantColumnsVacc == 'KeineZuordnung').any(axis=1)]
-importantColumnsVacc.info(verbose=False)
-importantColumnsVacc.info()
-importantColumnsVacc.dtypes
-print('row values 0')
-print(importantColumnsVacc == 0)
-print((importantColumnsVacc == 0).sum())
-
-# non zero value rows
-importantColumnsVacc = importantColumnsVacc[~(
-    importantColumnsVacc == 0).any(axis=1)]
-importantColumnsVacc.info(verbose=False)
-importantColumnsVacc.info()
-importantColumnsVacc.dtypes
-
-importantColumnsVacc['Datum'] = pd.to_datetime(
-    importantColumnsVacc['Datum'], utc=True)
-importantColumnsVacc['Datum'] = importantColumnsVacc['Datum'].dt.tz_convert(
-    'CET')
-# print(importantColumnsVacc['Datum'])
-# print(importantColumnsVacc.describe())
-# =============================================================================
 # Vaccination Districts Url
 vaccinationDistrictsDataUrl = pd.read_csv(
     'https://info.gesundheitsministerium.gv.at/data/COVID19_vaccination_municipalities.csv', sep=';')
 
-importantColumnsVaccDist = vaccinationDistrictsDataUrl[[
-    "date", "municipality_name", "municipality_population", "dose_1", "dose_2", "dose_3"]]
-importantColumnsVaccDist.dropna(axis=0)
-importantColumnsVaccDist.info(verbose=False)
-importantColumnsVaccDist.info()
-importantColumnsVaccDist.dtypes
+colVaccDist = vaccinationDistrictsDataUrl[[
+    "date", "municipality_id", "municipality_name", "municipality_population", "dose_1", "dose_2", "dose_3"]]
+colVaccDist.dropna(axis=0)
+colVaccDist.info(verbose=False)
+colVaccDist.info()
+colVaccDist.dtypes
 
-importantColumnsVaccDist = importantColumnsVaccDist[~(
-    importantColumnsVaccDist == 0).any(axis=1)]
+colVaccDist = colVaccDist[~(
+    colVaccDist == 0).any(axis=1)]
 
-importantColumnsVaccDist['date'] = pd.to_datetime(
-    importantColumnsVaccDist['date'], utc=True)
-importantColumnsVaccDist['date'] = importantColumnsVaccDist['date'].dt.tz_convert(
+colVaccDist['date'] = pd.to_datetime(
+    colVaccDist['date'], utc=True)
+colVaccDist['date'] = colVaccDist['date'].dt.tz_convert(
     'CET')
-    
-# importantColumnsVaccDist['municipality_id'] = importantColumnsVaccDist[(
-    # importantColumnsVaccDist['municipality_id']).between(90101, 92301)]
-importantColumnsVaccDist.loc[
-    importantColumnsVaccDist.municipality_id == 90101, 'municipality_name'] = 'Wien Innere Stadt'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90201), 'municipality_name'] = 'Wien Leopoldstadt'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90301), 'municipality_name'] = 'Wien Landstraße'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90401), 'municipality_name'] = 'Wien Wieden'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90501), 'municipality_name'] = 'Wien Margareten'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90601), 'municipality_name'] = 'Wien Mariahilf'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90701), 'municipality_name'] = 'Wien Neubau'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90801), 'municipality_name'] = 'Wien Josefstadt'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 90901), 'municipality_name'] = 'Wien Alsergrund'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91001), 'municipality_name'] = 'Wien Favoriten'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91101), 'municipality_name'] = 'Wien Simmering'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91201), 'municipality_name'] = 'Wien Meidling'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91301), 'municipality_name'] = 'Wien Hietzing'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91401), 'municipality_name'] = 'Wien Penzing'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91501), 'municipality_name'] = 'Wien Rudolfsheim-Fünfhaus'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91601), 'municipality_name'] = 'Wien Ottakring'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91701), 'municipality_name'] = 'Wien Hernals'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91801), 'municipality_name'] = 'Wien Währing'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 91901), 'municipality_name'] = 'Wien Döbling'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 92001), 'municipality_name'] = 'Wien Brigittenau'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 92101), 'municipality_name'] = 'Wien Floridsdorf'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 92201), 'municipality_name'] = 'Wien Donaustadt'
-importantColumnsVaccDist.loc[(
-    importantColumnsVaccDist.municipality_id == 92301), 'municipality_name'] = 'Wien Liesing'
-    
-# importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
-    # '\d+.', '')
-# importantColumnsVaccDist['municipality_name'] = importantColumnsVaccDist['municipality_name'].str.replace(
-    # '\s{2,}', ' ')
+colVaccDist.loc[(colVaccDist.municipality_id == 90101),
+                'municipality_name'] = 'Wien Innere Stadt'
+colVaccDist.loc[(colVaccDist.municipality_id == 90201),
+                'municipality_name'] = 'Wien Leopoldstadt'
+colVaccDist.loc[(colVaccDist.municipality_id == 90301),
+                'municipality_name'] = 'Wien Landstraße'
+colVaccDist.loc[(colVaccDist.municipality_id == 90401),
+                'municipality_name'] = 'Wien Wieden'
+colVaccDist.loc[(colVaccDist.municipality_id == 90501),
+                'municipality_name'] = 'Wien Margareten'
+colVaccDist.loc[(colVaccDist.municipality_id == 90601),
+                'municipality_name'] = 'Wien Mariahilf'
+colVaccDist.loc[(colVaccDist.municipality_id == 90701),
+                'municipality_name'] = 'Wien Neubau'
+colVaccDist.loc[(colVaccDist.municipality_id == 90801),
+                'municipality_name'] = 'Wien Josefstadt'
+colVaccDist.loc[(colVaccDist.municipality_id == 90901),
+                'municipality_name'] = 'Wien Alsergrund'
+colVaccDist.loc[(colVaccDist.municipality_id == 91001),
+                'municipality_name'] = 'Wien Favoriten'
+colVaccDist.loc[(colVaccDist.municipality_id == 91101),
+                'municipality_name'] = 'Wien Simmering'
+colVaccDist.loc[(colVaccDist.municipality_id == 91201),
+                'municipality_name'] = 'Wien Meidling'
+colVaccDist.loc[(colVaccDist.municipality_id == 91301),
+                'municipality_name'] = 'Wien Hietzing'
+colVaccDist.loc[(colVaccDist.municipality_id == 91401),
+                'municipality_name'] = 'Wien Penzing'
+colVaccDist.loc[(colVaccDist.municipality_id == 91501),
+                'municipality_name'] = 'Wien Rudolfsheim-Fünfhaus'
+colVaccDist.loc[(colVaccDist.municipality_id == 91601),
+                'municipality_name'] = 'Wien Ottakring'
+colVaccDist.loc[(colVaccDist.municipality_id == 91701),
+                'municipality_name'] = 'Wien Hernals'
+colVaccDist.loc[(colVaccDist.municipality_id == 91801),
+                'municipality_name'] = 'Wien Währing'
+colVaccDist.loc[(colVaccDist.municipality_id == 91901),
+                'municipality_name'] = 'Wien Döbling'
+colVaccDist.loc[(colVaccDist.municipality_id == 92001),
+                'municipality_name'] = 'Wien Brigittenau'
+colVaccDist.loc[(colVaccDist.municipality_id == 92101),
+                'municipality_name'] = 'Wien Floridsdorf'
+colVaccDist.loc[(colVaccDist.municipality_id == 92201),
+                'municipality_name'] = 'Wien Donaustadt'
+colVaccDist.loc[(colVaccDist.municipality_id == 92301),
+                'municipality_name'] = 'Wien Liesing'
 # =============================================================================
 # read json file for warn level
 response = requests.get(
@@ -182,6 +129,7 @@ df = pd.read_csv(r'AustrianCitiesWithCoordinates.csv')
 
 # =============================================================================
 
+
 def getMarkerColor(i):
     switcher = {
         '1': 'green',
@@ -190,6 +138,7 @@ def getMarkerColor(i):
         '4': 'red',
     }
     return switcher.get(i, "Invalid number")
+
 
 # =============================================================================
 # API
@@ -265,11 +214,13 @@ def api_DistrictPositiveCases_Filter():
 
 # =============================================================================
 
+
 @app.route('/REff', methods=['GET'])
 def REffhome():
     return "<p>R_Effective data: R effective value for austria grouped by week month and year</p>"
 
 # A route to return all the json data.
+
 
 @app.route('/api/R_eff_Austria/', methods=['GET'])
 def api_REffectiveValue_Filter():
@@ -307,6 +258,7 @@ def VaccinationDistricts():
 
 # A route to return all the json data.
 
+
 @app.route('/api/VaccinationDistricts/', methods=['GET'])
 def api_VaccinationDistricts_Filter():
     districtname = ''
@@ -317,8 +269,8 @@ def api_VaccinationDistricts_Filter():
 
     if 'districtname' in query_parameters:
         districtnametofilter = districtname
-        filteredDistrictVacc = importantColumnsVaccDist[importantColumnsVaccDist['municipality_name']
-                                                        == districtnametofilter]
+        filteredDistrictVacc = colVaccDist[colVaccDist['municipality_name']
+                                           == districtnametofilter]
 
     else:
         return 'Error:No districtname provided. Please choose a districtname.'
@@ -341,6 +293,7 @@ def api_VaccinationDistricts_Filter():
     return jsonify(parsedJsonVaccDist)
 
 # =============================================================================
+
 
 @app.route('/api/warnLevelRegion/', methods=['GET'])
 def api_warningLevelRegion():
