@@ -26,7 +26,7 @@ print(districtDataUrl.isna().sum())
 print(districtDataUrl.isnull().sum(axis=0))
 
 importantColumns = districtDataUrl[[
-    'Time', 'Bezirk', 'AnzahlFaelle']]
+    'Time', 'Bezirk', 'AnzEinwohner', 'AnzahlFaelle']]
 # check if the rows contain value zero
 print(importantColumns == 0)
 # non zero value rows
@@ -180,25 +180,25 @@ def api_DistrictPositiveCases_Filter():
 
     if(dataintervaltofilter == 'Daily'):
 
-        districtDataByDay = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime('%d %b %Y'), Year=filteredDistrict['Time'].dt.strftime(
-            '%Y').sort_index()).groupby(['DistrictName', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
+        districtDataByDay = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Population=filteredDistrict['AnzEinwohner'], Interval=filteredDistrict['Time'].dt.strftime('%d %b %Y'), Year=filteredDistrict['Time'].dt.strftime(
+            '%Y').sort_index()).groupby(['DistrictName', 'Population', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
         convertedJson = districtDataByDay.to_json(orient="table")
 
     elif(dataintervaltofilter == 'Weekly'):
-        districtDataByWeek = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval='week '+filteredDistrict['Time'].dt.strftime(
-            '%W %Y'), Year=filteredDistrict['Time'].dt.strftime('%Y').sort_index()).groupby(['DistrictName', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
+        districtDataByWeek = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Population=filteredDistrict['AnzEinwohner'], Interval='week '+filteredDistrict['Time'].dt.strftime(
+            '%W %Y'), Year=filteredDistrict['Time'].dt.strftime('%Y').sort_index()).groupby(['DistrictName', 'Population', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
         convertedJson = districtDataByWeek.to_json(orient="table")
 
     elif(dataintervaltofilter == 'Monthly'):
 
-        districtDataByMonth = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime('%b %Y'), Year=filteredDistrict['Time'].dt.strftime(
-            '%Y').sort_index()).groupby(['DistrictName', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
+        districtDataByMonth = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Population=filteredDistrict['AnzEinwohner'], Interval=filteredDistrict['Time'].dt.strftime('%b %Y'), Year=filteredDistrict['Time'].dt.strftime(
+            '%Y').sort_index()).groupby(['DistrictName', 'Population', 'Interval', 'Year'], sort=False)['AnzahlFaelle'].sum()
         convertedJson = districtDataByMonth.to_json(orient="table")
 
     elif(dataintervaltofilter == 'Yearly'):
 
-        districtDataByYear = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Interval=filteredDistrict['Time'].dt.strftime(
-            '%Y').sort_index()).groupby(['DistrictName', 'Interval'])['AnzahlFaelle'].sum()
+        districtDataByYear = filteredDistrict.assign(DistrictName=filteredDistrict['Bezirk'], Population=filteredDistrict['AnzEinwohner'], Interval=filteredDistrict['Time'].dt.strftime(
+            '%Y').sort_index()).groupby(['DistrictName', 'Population', 'Interval'])['AnzahlFaelle'].sum()
         convertedJson = districtDataByYear.to_json(orient="table")
 
     else:
