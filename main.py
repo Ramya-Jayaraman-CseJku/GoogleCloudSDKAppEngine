@@ -283,7 +283,14 @@ def api_VaccinationDistricts_Filter():
     VaccDataDose_3 = filteredDistrictVacc.assign(
         Interval=filteredDistrictVacc['date'].dt.strftime('%d %b %Y'),
         Dose=filteredDistrictVacc['dose_3'], Type="Dose_3")
-    data = [VaccData, VaccDataDose_2, VaccDataDose_3]
+    VaccDataDose_4 = filteredDistrictVacc.assign(
+        Interval=filteredDistrictVacc['date'].dt.strftime('%d %b %Y'),
+        Dose=filteredDistrictVacc['dose_4'], Type="Dose_4")
+    VaccDataDose_5 = filteredDistrictVacc.assign(
+        Interval=filteredDistrictVacc['date'].dt.strftime('%d %b %Y'),
+        Dose=filteredDistrictVacc['dose_5+'], Type="Dose_5")
+    data = [VaccData, VaccDataDose_2, VaccDataDose_3,
+            VaccDataDose_4, VaccDataDose_5]
     ddf = pd.concat(data)
     convertedJsonVaccDist = ddf.to_json(
         orient="table")
