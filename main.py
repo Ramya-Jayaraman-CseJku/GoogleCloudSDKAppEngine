@@ -60,7 +60,7 @@ vaccinationDistrictsDataUrl = pd.read_csv(
     'https://info.gesundheitsministerium.gv.at/data/COVID19_vaccination_municipalities_v202206.csv', sep=';')
 
 colVaccDist = vaccinationDistrictsDataUrl[[
-    "date", "municipality_id", "municipality_name", "municipality_population", "dose_1", "dose_2", "dose_3"]]
+    "date", "municipality_id", "municipality_name", "municipality_population", "dose_1", "dose_2", "dose_3", "dose_4", "dose_5+"]]
 colVaccDist.dropna(axis=0)
 colVaccDist.info(verbose=False)
 colVaccDist.info()
