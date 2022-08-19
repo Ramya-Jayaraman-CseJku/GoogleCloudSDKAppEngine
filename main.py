@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Apr 10 15:07:15 2021
-
 @author: ramya
 """
-
 import pandas as pd
 import flask
 from flask import request, jsonify
 import requests
 import json
-
+from pprint import pprint as pp
+#from collections import Counter
 # setttingcopywithwarning remove
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -18,22 +17,25 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # district data url
 districtDataUrl = pd.read_csv(
     'https://covid19-dashboard.ages.at/data/CovidFaelle_Timeline_GKZ.csv', sep=";")
-districtDataUrl.info(verbose=False)
-districtDataUrl.info()
-districtDataUrl.dtypes
-print('count of nan values')
-print(districtDataUrl.isna().sum())
-print(districtDataUrl.isnull().sum(axis=0))
+
+# print(districtDataUrl.isnull().sum(axis=0))
+# check if the rows contain value zero
+print('Total no. of records available')
+print(len(districtDataUrl.index))
 
 importantColumns = districtDataUrl[[
     'Time', 'Bezirk', 'AnzEinwohner', 'AnzahlFaelle']]
-# check if the rows contain value zero
-print(importantColumns == 0)
+
+count = (importantColumns['AnzahlFaelle'] == 0).sum()
+
 # non zero value rows
 importantColumns = importantColumns[~(importantColumns == 0).any(axis=1)]
-importantColumns.info(verbose=False)
+count = (importantColumns['AnzahlFaelle'] == 0).sum()
+
 importantColumns.info()
-importantColumns.dtypes
+# importantColumns.dtypes
+print('No. of records after pre-processing')
+print(len(importantColumns.index))
 # convert to datetime format of time column for grouping by week,month,year dayfirst=true for correct conversion format(yyyy-mm-dd)
 importantColumns['Time'] = pd.to_datetime(
     districtDataUrl['Time'], dayfirst=True)
@@ -49,12 +51,13 @@ rValueUrl.info()
 rValueUrl.dtypes
 
 importantColumnsREFF = rValueUrl[['Datum', 'R_eff']]
+print(importantColumnsREFF)
 importantColumnsREFF['Datum'] = pd.to_datetime(rValueUrl['Datum'])
 
 # =============================================================================
 # Vaccination Districts Url
 vaccinationDistrictsDataUrl = pd.read_csv(
-    'https://info.gesundheitsministerium.gv.at/data/COVID19_vaccination_municipalities.csv', sep=';')
+    'https://info.gesundheitsministerium.gv.at/data/COVID19_vaccination_municipalities_v202206.csv', sep=';')
 
 colVaccDist = vaccinationDistrictsDataUrl[[
     "date", "municipality_id", "municipality_name", "municipality_population", "dose_1", "dose_2", "dose_3"]]
@@ -65,7 +68,7 @@ colVaccDist.dtypes
 
 colVaccDist = colVaccDist[~(
     colVaccDist == 0).any(axis=1)]
-
+print(colVaccDist)
 colVaccDist['date'] = pd.to_datetime(
     colVaccDist['date'], utc=True)
 colVaccDist['date'] = colVaccDist['date'].dt.tz_convert(
@@ -122,8 +125,6 @@ response = requests.get(
     "https://corona-ampel.gv.at/sites/corona-ampel.gv.at/files/assets/Warnstufen_Corona_Ampel_aktuell.json", timeout=5)
 # response.close()
 entiredata = json.loads(response.text)
-
-finallist = []
 # read loacl csv file for coordinates
 df = pd.read_csv(r'AustrianCitiesWithCoordinates.csv')
 
@@ -146,15 +147,15 @@ app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
 
-@app.route('/', methods=['GET'])
+@ app.route('/', methods=['GET'])
 def home():
-    sample = "Welcome to the home page of flask API try following routes to see covid related information <br/>1./api/positivecasesbydistrict/<br/>2./api/VaccinationDistricts/<br/>3./api/R_eff_Austria/</p>"
+    sample = "Welcome to the home page of flask API try following routes to see covid related information <br/>1./api/positivecasesbydistrict/<br/>2./api/VaccinationDistricts/<br/>3./api/R_eff_Austria/<br/>4./api/warnLevelRegion/</p>"
     return sample
 
 # A route to return all the json data.
 
 
-@app.route('/api/positivecasesbydistrict/', methods=['GET'])
+@ app.route('/api/positivecasesbydistrict/', methods=['GET'])
 def api_DistrictPositiveCases_Filter():
     districtname = ''
     interval = ''
@@ -204,7 +205,7 @@ def api_DistrictPositiveCases_Filter():
     else:
         return 'Error: Interval type provided is mismatched  . Please choose one of the data interval Daily,Weekly,Monthly or Yearly.'
 
-    #convertedJson = districtDataByMonth.to_json(orient="table")
+    # convertedJson = districtDataByMonth.to_json(orient="table")
     # de-serialize into python obj
     parsedJson = json.loads(convertedJson)
     # serialize into json
@@ -215,14 +216,14 @@ def api_DistrictPositiveCases_Filter():
 # =============================================================================
 
 
-@app.route('/REff', methods=['GET'])
+@ app.route('/REff', methods=['GET'])
 def REffhome():
     return "<p>R_Effective data: R effective value for austria grouped by week month and year</p>"
 
 # A route to return all the json data.
 
 
-@app.route('/api/R_eff_Austria/', methods=['GET'])
+@ app.route('/api/R_eff_Austria/', methods=['GET'])
 def api_REffectiveValue_Filter():
 
     interval = ''
@@ -252,14 +253,14 @@ def api_REffectiveValue_Filter():
 
 # =============================================================================
 
-@app.route('/VaccinationDistricts', methods=['GET'])
+@ app.route('/VaccinationDistricts', methods=['GET'])
 def VaccinationDistricts():
     return "<p>Vaccination data: Vaccination data for districts for particular date</p>"
 
 # A route to return all the json data.
 
 
-@app.route('/api/VaccinationDistricts/', methods=['GET'])
+@ app.route('/api/VaccinationDistricts/', methods=['GET'])
 def api_VaccinationDistricts_Filter():
     districtname = ''
 
@@ -271,7 +272,6 @@ def api_VaccinationDistricts_Filter():
         districtnametofilter = districtname
         filteredDistrictVacc = colVaccDist[colVaccDist['municipality_name']
                                            == districtnametofilter]
-
     else:
         return 'Error:No districtname provided. Please choose a districtname.'
 
@@ -295,7 +295,7 @@ def api_VaccinationDistricts_Filter():
 # =============================================================================
 
 
-@app.route('/api/warnLevelRegion/', methods=['GET'])
+@ app.route('/api/warnLevelRegion/', methods=['GET'])
 def api_warningLevelRegion():
 
     date = ''
